@@ -10,56 +10,18 @@ import Footer from './components/footer';
 import { useEthers } from "@usedapp/core";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-import { toast } from "react-toastify";
 import { useTypedSelector } from './storeHooks/useTypedSelector';
 import { Status } from './types/main';
 import { useActions } from './storeHooks/useActions';
-import { useClaim } from './hooks/useClaim';
-import { useGetTokenBal } from "./hooks/useGetTokenBal"; 
 
 function App() {
-  const { splitBalance, status, advanced } = useTypedSelector(state => state.main);
-  const { SetSplitBal, SetNotification, SetStatus, SetAdvanced } = useActions();
+  const { status, advanced } = useTypedSelector(state => state.main);
+  const { SetAdvanced } = useActions();
   const { activateBrowserWallet, account } = useEthers();
   
   const advancedHandler = () => {
     SetAdvanced(!advanced)
   }
-
-  const claimHook = useClaim();
-  const balSplitHook = useGetTokenBal();
-
-  async function handleClaim() {
-    if (!account) {
-        toast.info('FIRST CONNECT YOUR WALLET', {
-            position: "bottom-center",
-            autoClose: 1000,
-            hideProgressBar: true,
-            pauseOnHover: false,
-            draggable: true,
-            theme: "dark",
-        });        
-        return;
-    }
-    if (splitBalance > 0) {
-        toast.info('YOU HAVE ALREADY RECEIVED TEST TOKENS', {
-            position: "bottom-center",
-            autoClose: 1000,
-            hideProgressBar: true,
-            pauseOnHover: false,
-            draggable: true,
-            theme: "dark",
-        });
-        return;
-    }
-    SetNotification("GETTING TOKENS");
-    SetStatus(Status.Loader);
-    await claimHook();
-    const balSplit = await balSplitHook(account as string);   
-    SetSplitBal(balSplit as number);
-    SetNotification("TOKENS RECEIVED");
-    SetStatus(Status.Won);
-}
 
   return (
     <>
@@ -86,18 +48,14 @@ function App() {
               </div>
             </div>
             <div className="header__right">
-              <div 
-                onClick={() => handleClaim()} 
-                style={{
-                  marginRight: "8px",
-                  cursor: "pointer"
-                }} 
-                className="button__size button__transparent"
+              <a 
+                target="_blank" href="https://app.uniswap.org/swap"
+                className="button__size button__transparent header__claim"
               >
                 <div>
-                CLAIM TEST
+                  BUY TOKENS
                 </div> 
-              </div>
+              </a>
               {account? <div className="button__size button__transparent">
                           <img style={{marginRight: "10px"}} src={Person} alt="Person" />
                           <div>
